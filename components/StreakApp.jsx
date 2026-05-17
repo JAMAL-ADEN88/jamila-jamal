@@ -161,18 +161,25 @@ export default function StreakApp() {
     try {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
-        password,
-        options: { data: { name: name.trim() }, emailRedirectTo: window.location.origin },
+        password: password,
+        options: {
+          data: { name: name.trim() }
+        },
       });
       if (error) {
         setAuthError(error.message);
       } else if (data?.user?.identities?.length === 0) {
         setAuthError("This email is already registered. Please sign in.");
       } else {
-        setAuthSuccess("✅ Account created! Check your email inbox to confirm, then sign in here.");
-        setAuthMode("login"); setEmail(""); setPassword(""); setName("");
+        setAuthSuccess("✅ Account created! You can now sign in.");
+        setAuthMode("login");
+        setEmail(email);
+        setPassword("");
+        setName("");
       }
-    } catch (e) { setAuthError("Something went wrong. Please try again."); }
+    } catch (e) {
+      setAuthError("Something went wrong. Please try again.");
+    }
     setAuthLoading(false);
   }
 
@@ -180,7 +187,10 @@ export default function StreakApp() {
     if (!email || !password) { setAuthError("Please enter email and password"); return; }
     setAuthLoading(true); setAuthError(""); setAuthSuccess("");
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
       if (error) {
         if (error.message.includes("Email not confirmed")) {
           setAuthError("Please check your email and click the confirmation link first.");
@@ -188,7 +198,9 @@ export default function StreakApp() {
           setAuthError("Wrong email or password. Please try again.");
         }
       }
-    } catch (e) { setAuthError("Something went wrong. Please try again."); }
+    } catch (e) {
+      setAuthError("Something went wrong. Please try again.");
+    }
     setAuthLoading(false);
   }
 
